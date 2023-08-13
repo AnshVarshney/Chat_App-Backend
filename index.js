@@ -1,0 +1,75 @@
+// including express
+const express=require("express");
+
+// including socket.io
+const {Server} = require ("socket.io");
+
+// built in http
+const http = require("http");
+
+// including cors which help us to share resource in cross origin 
+const cors = require("cors");
+
+const app = express();
+// everytime cors is in use
+app.use(cors());
+
+const server = http.createServer(app);
+
+const io = new Server(server,{
+    cors:{
+        origin:"http://localhost:3000",
+        methods: ["GET","POST"]
+    }
+})
+
+app.get("/",(req,res)=>{
+    res.send("Type As much as you can,");
+})
+
+io.on("connection", (socket) => {
+    console.log(socket.id); 
+    socket.on("joinRoom", room=>socket.join(room))
+    socket.on("newMessage",({newMessage,room})=>{
+        console.log(room,newMessage)
+        io.in(room).emit("getLatestMessage",newMessage)
+    })
+  });
+
+  const port = process.env.PORT || 8000
+
+  server.listen(port,()=>console.log(`app started at port ${port}`));
+
+
+// var http = require('http');
+// const cors = require("cors")
+
+// const app = express()
+// app.use(cors())
+
+// var server = http.createServer(app);
+
+// const io = new Server(server, {
+//   cors: {
+//     origin: "http://localhost:3000",
+//     methods: ["GET", "POST"]
+//   }
+// });
+
+// app.get("/", (req, res) => {res.send("Chat BE with Socket.io by Prince Raj"); res.end()})
+
+// io.on("connection", (socket) => {
+//   console.log(socket.id)
+
+//   socket.on("joinRoom", room => {
+// 		socket.join(room)
+//   })
+
+//   socket.on("newMessage", ({newMessage, room}) => {
+//     io.in(room).emit("getLatestMessage", newMessage)
+//   })
+
+// });
+
+
+// server.listen(port, console.log(`App started at port ${port}`))
